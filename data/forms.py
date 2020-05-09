@@ -6,7 +6,9 @@ from flask_wtf import FlaskForm
 
 class DecksForm(FlaskForm):
     title = StringField('Название колоды', validators=[DataRequired()])
-    content = TextAreaField("Деклист")
+    commander1 = StringField('Командир (опционально)')
+    commander2 = StringField('Второй командир (опционально)')
+    content = TextAreaField("Деклист", validators=[DataRequired()])
     is_private = BooleanField("Личное")
     submit = SubmitField('Cохранить')
 

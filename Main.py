@@ -7,7 +7,7 @@ from data.forms import DecksForm, RegisterForm, LoginForm
 import request
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-db_session.global_init("db/blogs.sqlite")
+db_session.global_init("db/mtg.sqlite")
 session = db_session.create_session()
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -29,6 +29,23 @@ def index():
     else:
         decks = session.query(Decks).filter(Decks.is_private != True)
     return render_template("index.html", decks=decks)
+
+
+@app.route('/decks/<int:id>')
+def deck(id):
+    session = db_session.create_session()
+    decks = session.query(Decks)
+    for i in decks:
+        if i.id == id:
+            return render_template("deck.html", item=i)
+
+
+@app.route('/mydecks')
+def mydecks():
+    session = db_session.create_session()
+    decks = session.query(Decks).filter(
+        (Decks.user == current_user) | (Decks.is_private != True))
+    return render_template("mydecks.html", decks=decks)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -56,7 +73,7 @@ def register():
     return render_template('register.html', title='Регистрация', form=form)
 
 
-@app.route('/login', methods=['GET', 'P OST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -87,16 +104,18 @@ def add_decks():
         decks = Decks()
         decks.title = form.title.data
         decks.content = form.content.data
+        decks.commander1 = form.commander1.data
+        decks.commander2 = form.commander2.data
         decks.is_private = form.is_private.data
         current_user.decks.append(decks)
         session.merge(current_user)
         session.commit()
         return redirect('/')
-    return render_template('Decks.html', title='Добавление новости',
+    return render_template('Decks.html', title='Добавление колоды',
                            form=form)
 
 
-@app.route('/decks/<int:id>', methods=['GET', 'POST'])
+@app.route('/decks/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_decks(id):
     form = DecksForm()
@@ -107,6 +126,8 @@ def edit_decks(id):
         if decks:
             form.title.data = decks.title
             form.content.data = decks.content
+            decks.commander1 = form.commander1.data
+            decks.commander2 = form.commander2.data
             form.is_private.data = decks.is_private
         else:
             abort(404)
@@ -117,6 +138,8 @@ def edit_decks(id):
         if decks:
             decks.title = form.title.data
             decks.content = form.content.data
+            decks.commander1 = form.commander1.data
+            decks.commander2 = form.commander2.data
             decks.is_private = form.is_private.data
             session.commit()
             return redirect('/')

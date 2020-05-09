@@ -12,7 +12,15 @@
 <body>
 <header>
     <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="#">MTGdecks</a>
+        <a class="btn navbar bg-light" href="/">MTGdecks</a>
+        {% if current_user.is_authenticated %}
+        <a class="btn navbar bg-light" href="/mydecks">{{ current_user.name }}</a>
+        <a class="btn navbar bg-light " href="/decks">Добавить колоду</a>
+        <a class="btn navbar bg-light" href="/logout">Выйти</a>
+{% else %}
+        <a class="btn navbar bg-light" href="/register">Зарегистрироваться</a>
+        <a class="btn navbar bg-light" href="/login">Войти</a>
+{% endif %}
     </nav>
 </header>
 <!-- Begin page content -->

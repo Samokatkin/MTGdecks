@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        <h1>{{item.title}}</h1>
+    </div>
+{% if item.commander1 != None and item.commander1 != '' %}
+    <div>
+        <h4>Командир: {{item.commander1}}</h4>
+    </div>
+{% if item.commander2 != None and item.commander2 != '' %}
+    <div>
+        <h4>Второй Командир: {{item.commander2}}</h4>
+    </div>
+{% endif %}
+{% endif %}
+    <div>
+        <h4>Деклист:</h4>
+    </div>
+    <div>
+        {{item.content}}
+    </div>
+     <div>
+        <h5>Автор - {{item.user.name}}, Дата написания - {{item.created_date}}<h5>
+     </div>
+    {% if current_user.is_authenticated and current_user == item.user %}
+    <div>
+        <a href="/decks/edit/{{ item.id }}" class="btn btn-warning">Изменить</a>
+        <a href="/decks_delete/{{ item.id }}" class="btn btn-danger">Удалить</a>
+    </div>
+{% endif %}
+{% endblock %}

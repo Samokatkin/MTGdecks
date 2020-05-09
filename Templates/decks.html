@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Добавление колоды</h1>
+<h1>Колода</h1>
 <form action="" method="post">
     {{ form.hidden_tag() }}
     {{ form.csrf_token }}
@@ -9,6 +9,25 @@
         {{ form.title.label }}<br>
         {{ form.title(class="form-control") }}<br>
         {% for error in form.title.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+        <p>
+        {{ form.commander1.label }}<br>
+        {{ form.commander1(class="form-control") }}<br>
+        {% for error in form.commander1.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+        </p>
+        <p>
+        {{ form.commander2.label }}<br>
+        {{ form.commander2(class="form-control") }}<br>
+        {% for error in form.commander2.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>

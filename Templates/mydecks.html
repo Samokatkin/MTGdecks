@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Недавние колоды</h1>
-{% for item in decks%}
+<h1>Мои колоды</h1>
+{% for item in current_user.decks%}
 <div class="col-md6 border rounded">
     <div>
         <a class="navbar-brand" href="/decks/{{ item.id }}">{{item.title}}</a>
     </div>
     <div>
-        {{item.content[:20] + '...'}}
+        {{item.content}}
     </div>
     <div>
         Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
