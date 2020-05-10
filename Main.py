@@ -5,6 +5,7 @@ from data import db_session
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from data.forms import DecksForm, RegisterForm, LoginForm
 import request
+from mtgsdk import Card
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db_session.global_init("db/mtg.sqlite")
@@ -17,6 +18,20 @@ login_manager.init_app(app)
 def load_user(user_id):
     session = db_session.create_session()
     return session.query(User).get(user_id)
+
+
+def get_image(decklist):
+    list = []
+    for line in decklist.split('\r\n'):
+        list.append(line.split()[0])
+        name = ' '.join(line.split()[1:])
+        car = Card.where(name=name).array()
+        for c in car:
+            if 'imageUrl' in c:
+                card = c['imageUrl']
+        list.append(name)
+        list.append(card)
+    return list
 
 
 @app.route('/')
@@ -37,7 +52,9 @@ def deck(id):
     decks = session.query(Decks)
     for i in decks:
         if i.id == id:
-            return render_template("deck.html", item=i)
+            deckl = get_image(i.content)
+            lengh = len(deckl) - 1
+            return render_template("deck.html", item=i, decklist=deckl, len=lengh)
 
 
 @app.route('/mydecks')
@@ -125,7 +142,7 @@ def edit_decks(id):
                                           Decks.user == current_user).first()
         if decks:
             form.title.data = decks.title
-            form.content.data = decks.content
+            form.content.data = form.content.data
             decks.commander1 = form.commander1.data
             decks.commander2 = form.commander2.data
             form.is_private.data = decks.is_private

@@ -17,12 +17,15 @@
     <div>
         <h4>Деклист:</h4>
     </div>
+{% for line in range(len(0, len, 3)) %}
     <div>
-        {{item.content}}
+        {{decklist[line]}}
     </div>
-     <div>
+        <a class="navbar-brand" href="{{decklist[line + 2]}}">{{decklist[line + 1]}}</a>
+{% endfor %}
+    <div>
         <h5>Автор - {{item.user.name}}, Дата написания - {{item.created_date}}<h5>
-     </div>
+    </div>
     {% if current_user.is_authenticated and current_user == item.user %}
     <div>
         <a href="/decks/edit/{{ item.id }}" class="btn btn-warning">Изменить</a>
