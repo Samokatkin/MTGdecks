@@ -13,7 +13,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-def get_image(decklist):  # Функция, с помощью которой мы получаем адрес изображения для карты
+def get_image(decklist):  # Функция, с помощью которой мы получаем адрес изображения для карты.
     list = []
     yes = False  # Параметр, который определяет, правильно ли записана колода
     api = 'https://api.scryfall.com/cards/named?exact='  # Использую эту ссылку будем получать и нформацию о карте
