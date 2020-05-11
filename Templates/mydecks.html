@@ -8,7 +8,7 @@
         <a class="navbar-brand" href="/decks/{{ item.id }}">{{item.title}}</a>
     </div>
     <div>
-        {{item.content}}
+        {{item.content[:20] + '...'}}
     </div>
     <div>
         Автор - {{item.user.name}}, Дата написания - {{item.created_date}}

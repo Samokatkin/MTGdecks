@@ -1,30 +1,83 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <div>
         <h1>{{item.title}}</h1>
     </div>
-{% if item.commander1 != None and item.commander1 != '' %}
+{% if lec1 == 3 %}
+<div><h4>Второй Командир:</h4></div>
     <div>
-        <h4>Командир: {{item.commander1}}</h4>
-    </div>
-{% if item.commander2 != None and item.commander2 != '' %}
-    <div>
-        <h4>Второй Командир: {{item.commander2}}</h4>
+    {{decklist[line]}}
+<a class="navbar-brand myPopover"
+   data-toggle="popover"
+   data-placement="right"
+   data-trigger="hover"
+   data-html="true"
+   href="{{com1[2]}}"
+   data-content="<img src='{{com1[2]}}'>">{{com1[1]}}</a>
+<script>
+   $('.myPopover').popover();
+</script>
     </div>
 {% endif %}
+{% if com1[0] != '1 ' and lec1 != 3 %}
+<div><h4>Командир:</h4></div>
+{{com1[0]}}
+<div><font color="red" face="ArialBold" size="2"><strong>Внимание! В названии командира ошибка, поэтому его изображение не отображется!</strong></font></div>
+{% endif %}
+{% if lec2 == 3 %}
+<div><h4>Второй Командир:</h4></div>
+    <div>
+    {{decklist[line]}}
+<a class="navbar-brand myPopover"
+   data-toggle="popover"
+   data-placement="right"
+   data-trigger="hover"
+   data-html="true"
+   href="{{com1[2]}}"
+   data-content="<img src='{{com2[2]}}'>">{{com2[1]}}</a>
+<script>
+   $('.myPopover').popover();
+</script>
+    </div>
+{% endif %}
+{% if com2[0] != '1 ' and lec2 != 3 %}
+<div><h4>Второй Командир:</h4></div>
+{{com2[0]}}
+<div><font color="red" face="ArialBold" size="2"><strong>Внимание! В названии командира ошибка, поэтому его изображение не отображется!</strong></font></div>
 {% endif %}
     <div>
         <h4>Деклист:</h4>
     </div>
-{% for line in range(len(0, len, 3)) %}
+{% if yes == False %}
+{% for line in range(0, len, 3) %}
     <div>
-        {{decklist[line]}}
+    {{decklist[line]}}
+<a class="navbar-brand myPopover"
+   data-toggle="popover"
+   data-placement="right"
+   data-trigger="hover"
+   data-html="true"
+   href="{{decklist[line + 2]}}"
+   data-content="<img src='{{decklist[line + 2]}}'>">{{decklist[line + 1]}}</a>
+<script>
+   $('.myPopover').popover();
+</script>
     </div>
-        <a class="navbar-brand" href="{{decklist[line + 2]}}">{{decklist[line + 1]}}</a>
 {% endfor %}
+{% else %}
+{% for line in decklist %}
     <div>
-        <h5>Автор - {{item.user.name}}, Дата написания - {{item.created_date}}<h5>
+    {{line}}
+    </div>
+{% endfor %}
+<font color="red" face="ArialBold" size="2"><strong>Внимание! В деклисте есть ошибки, поэтому картинки не отображаются!</strong></font>
+{% endif %}
+    <div>
+        <h5>Автор - {{item.user.name}}, Дата написания - {{item.created_date}}</h5>
     </div>
     {% if current_user.is_authenticated and current_user == item.user %}
     <div>

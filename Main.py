@@ -1,11 +1,10 @@
-from flask import Flask, render_template, redirect, abort
+from flask import Flask, render_template, redirect, abort, request
 from data.users import User
 from data.decks import Decks
 from data import db_session
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from data.forms import DecksForm, RegisterForm, LoginForm
-import request
-from mtgsdk import Card
+import requests
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db_session.global_init("db/mtg.sqlite")
@@ -14,29 +13,35 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+def get_image(decklist):  # Функция, с помощью которой мы получаем адрес изображения для карты
+    list = []
+    yes = False  # Параметр, который определяет, правильно ли записана колода
+    api = 'https://api.scryfall.com/cards/named?exact='  # Использую эту ссылку будем получать и нформацию о карте
+    for line in decklist.split('\r\n'):
+        name = '+'.join(line.split()[1:])
+        response = requests.get(api + name)
+        json_response = response.json()
+        if json_response['object'] == 'error' or yes is True:
+            list.append(line)
+            yes = True
+            continue
+        toponym = json_response["image_uris"]
+        card = toponym['normal']
+        list.append(line.split()[0])
+        list.append(' '.join(line.split()[1:]))
+        list.append(card)
+    return list, yes
+
+
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id):  # Функция для загрузки пользователей
     session = db_session.create_session()
     return session.query(User).get(user_id)
 
 
-def get_image(decklist):
-    list = []
-    for line in decklist.split('\r\n'):
-        list.append(line.split()[0])
-        name = ' '.join(line.split()[1:])
-        car = Card.where(name=name).array()
-        for c in car:
-            if 'imageUrl' in c:
-                card = c['imageUrl']
-        list.append(name)
-        list.append(card)
-    return list
-
-
 @app.route('/')
 @app.route('/index')
-def index():
+def index():  # Главная страница
     session = db_session.create_session()
     if current_user.is_authenticated:
         decks = session.query(Decks).filter(
@@ -47,18 +52,23 @@ def index():
 
 
 @app.route('/decks/<int:id>')
-def deck(id):
+def deck(id):  # Страница определенной колоды
     session = db_session.create_session()
     decks = session.query(Decks)
     for i in decks:
         if i.id == id:
-            deckl = get_image(i.content)
+            deckl, yes = get_image(i.content)
             lengh = len(deckl) - 1
-            return render_template("deck.html", item=i, decklist=deckl, len=lengh)
+            com1, notuseful = get_image('1 ' + i.commander1)
+            com2, notuseful = get_image('1 ' + i.commander2)
+            lec1 = len(com1)
+            lec2 = len(com2)
+            return render_template("deck.html", item=i, decklist=deckl, len=lengh, yes=yes,
+                                   com1=com1, com2=com2, lec1=lec1, lec2=lec2)
 
 
 @app.route('/mydecks')
-def mydecks():
+def mydecks():  # Страница с колодами авторизованного пользователя
     session = db_session.create_session()
     decks = session.query(Decks).filter(
         (Decks.user == current_user) | (Decks.is_private != True))
@@ -66,7 +76,7 @@ def mydecks():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register():
+def register():  # Страница регистрации
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
@@ -78,11 +88,7 @@ def register():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
-        user = User(
-            name=form.name.data,
-            email=form.email.data,
-            about=form.about.data
-        )
+        user = User(name=form.name.data, email=form.email.data)
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
@@ -91,7 +97,7 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login():  # Страница авторизации
     form = LoginForm()
     if form.validate_on_submit():
         session = db_session.create_session()
@@ -107,14 +113,14 @@ def login():
 
 @app.route('/logout')
 @login_required
-def logout():
+def logout():  # Выходим со своего профиля
     logout_user()
     return redirect("/")
 
 
 @app.route('/decks',  methods=['GET', 'POST'])
 @login_required
-def add_decks():
+def add_decks():  # Страница добавления колоды
     form = DecksForm()
     if form.validate_on_submit():
         session = db_session.create_session()
@@ -134,17 +140,17 @@ def add_decks():
 
 @app.route('/decks/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_decks(id):
+def edit_decks(id):  # Страница редактирования колоды
     form = DecksForm()
-    if request == "GET":
+    if request.method == "GET":
         session = db_session.create_session()
         decks = session.query(Decks).filter(Decks.id == id,
                                           Decks.user == current_user).first()
         if decks:
             form.title.data = decks.title
-            form.content.data = form.content.data
-            decks.commander1 = form.commander1.data
-            decks.commander2 = form.commander2.data
+            form.content.data = decks.content
+            decks.commander1 = decks.commander1
+            decks.commander2 = decks.commander2
             form.is_private.data = decks.is_private
         else:
             abort(404)
@@ -167,7 +173,7 @@ def edit_decks(id):
 
 @app.route('/decks_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
-def decks_delete(id):
+def decks_delete(id):  # Удаление колоды
     session = db_session.create_session()
     decks = session.query(Decks).filter(Decks.id == id,
                                       Decks.user == current_user).first()

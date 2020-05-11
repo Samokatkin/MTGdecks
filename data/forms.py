@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 
 
-class DecksForm(FlaskForm):
+class DecksForm(FlaskForm):  # Форма для редактирования/добавления колоды
     title = StringField('Название колоды', validators=[DataRequired()])
     commander1 = StringField('Командир (опционально)')
     commander2 = StringField('Второй командир (опционально)')
@@ -13,16 +13,15 @@ class DecksForm(FlaskForm):
     submit = SubmitField('Cохранить')
 
 
-class RegisterForm(FlaskForm):
+class RegisterForm(FlaskForm):  # Форма для регистрации
     email = EmailField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
     name = StringField('Имя пользователя', validators=[DataRequired()])
-    about = TextAreaField("Немного о себе")
     submit = SubmitField('Войти')
 
 
-class LoginForm(FlaskForm):
+class LoginForm(FlaskForm):  # Форма для входа
     email = EmailField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
