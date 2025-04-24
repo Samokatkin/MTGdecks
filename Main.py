@@ -65,6 +65,8 @@ def deck(id):  # Страница определенной колоды
             lec2 = len(com2)
             return render_template("deck.html", item=i, decklist=deckl, len=lengh, yes=yes,
                                    com1=com1, com2=com2, lec1=lec1, lec2=lec2)
+        return None
+    return None
 
 
 @app.route('/mydecks')
