@@ -20,7 +20,7 @@ class Decks(SqlAlchemyBase):  # Таблица колод
 
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
-    user = orm.relation('User')
+    user = orm.relationship('User')
 
     def __repr__(self):
         return f'{__class__.name} {self.name} {self.id} {self.email}'
