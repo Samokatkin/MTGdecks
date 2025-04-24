@@ -1,6 +1,6 @@
 import datetime
 import sqlalchemy
-from .db_session import SqlAlchemyBase
+from data.db_session import SqlAlchemyBase
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from sqlalchemy import orm
@@ -17,7 +17,7 @@ class User(SqlAlchemyBase, UserMixin):  # Таблица пользовател�
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)  # Хэшированный пароль
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)  # Дата создания аккаунта
-    decks = orm.relation("Decks", back_populates='user')
+    decks = orm.relationship("Decks", back_populates='user')
 
     def set_password(self, password):  # Функция для установки нового пароля
         self.hashed_password = generate_password_hash(password)
